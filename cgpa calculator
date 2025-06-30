@@ -1,0 +1,49 @@
+#include <iostream>
+#include <vector>
+#include <iomanip>
+using namespace std;
+
+int main() {
+    int numCourses;
+
+    cout << "==== CGPA CALCULATOR ====" << endl;
+    cout << "Enter the number of courses: ";
+    cin >> numCourses;
+
+   
+    vector<float> grades(numCourses);
+    vector<int> credits(numCourses);
+
+    float totalGradePoints = 0;
+    int totalCredits = 0;
+
+   
+    for (int i = 0; i < numCourses; ++i) {
+        cout << "\nCourse " << i + 1 << ":\n";
+        cout << "Enter grade (out of 10): ";
+        cin >> grades[i];
+
+        cout << "Enter credit hours: ";
+        cin >> credits[i];
+
+        totalGradePoints += grades[i] * credits[i];
+        totalCredits += credits[i];
+    }
+
+   
+    cout << "\n==== Course-wise Summary ====" << endl;
+    cout << "Course\tGrade\tCredits" << endl;
+    for (int i = 0; i < numCourses; ++i) {
+        cout << i + 1 << "\t" << grades[i] << "\t" << credits[i] << endl;
+    }
+
+    
+    float cgpa = totalGradePoints / totalCredits;
+
+    cout << fixed << setprecision(2);
+    cout << "\nTotal Credits: " << totalCredits << endl;
+    cout << "Total Grade Points: " << totalGradePoints << endl;
+    cout << "Your Final CGPA is: " << cgpa << " / 10.00" << endl;
+
+    return 0;
+}
