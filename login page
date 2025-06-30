@@ -1,0 +1,72 @@
+task 2 #include <iostream>
+#include <fstream>
+#include <string>
+using namespace std;
+
+void registerUser() {
+    string username, password, line;
+    cout << "Enter username: ";
+    cin >> username;
+    cout << "Enter password: ";
+    cin >> password;
+
+    ifstream file("users.txt");
+    while (getline(file, line)) {
+        size_t pos = line.find(":");
+        string existingUser = line.substr(0, pos);
+        if (existingUser == username) {
+            cout << "Username already exists.\n";
+            return;
+        }
+    }
+    file.close();
+
+    ofstream outfile("users.txt", ios::app);
+    outfile << username << ":" << password << "\n";
+    cout << "Registration successful.\n";
+}
+
+void loginUser() {
+    string username, password, line;
+    cout << "Enter username: ";
+    cin >> username;
+    cout << "Enter password: ";
+    cin >> password;
+
+    ifstream file("users.txt");
+    while (getline(file, line)) {
+        size_t pos = line.find(":");
+        if (pos != string::npos) {
+            string existingUser = line.substr(0, pos);
+            string existingPass = line.substr(pos + 1);
+
+            // Remove possible trailing newline or carriage return
+            if (!existingPass.empty() && (existingPass.back() == '\r' || existingPass.back() == '\n'))
+                existingPass.pop_back();
+
+            if (existingUser == username && existingPass == password) {
+                cout << "Login successful.\n";
+                return;
+            }
+        }
+    }
+    cout << "Invalid username or password.\n";
+}
+
+int main() {
+    int choice;
+    do {
+        cout << "\n1. Register\n2. Login\n3. Exit\nEnter choice: ";
+        cin >> choice;
+
+        if (choice == 1)
+            registerUser();
+        else if (choice == 2)
+            loginUser();
+        else if (choice != 3)
+            cout << "Invalid choice.\n";
+
+    } while (choice != 3);
+
+    return 0;
+}
