@@ -1,0 +1,64 @@
+#include <iostream>
+#include <vector>
+#include <string>
+#include <ctime>
+using namespace std;
+
+class Transaction {
+    string type, dt;
+    double amt, bal;
+public:
+    Transaction(string t, double a, double b) : type(t), amt(a), bal(b) {
+        time_t now = time(0);
+        dt = ctime(&now);
+        dt.pop_back();
+    }
+    void show() const { cout << dt << " - " << type << " ₹" << amt << " | Bal ₹" << bal << endl; }
+};
+
+class Account {
+    static int counter;
+    int accNo;
+    string name;
+    double bal = 0;
+    vector<Transaction> txns;
+public:
+    Account(string n) : name(n) { accNo = counter++; }
+    int getNo() const { return accNo; }
+    void deposit(double a) { if (a > 0) bal += a, txns.emplace_back("Deposit", a, bal); }
+    void withdraw(double a) { if (a > 0 && a <= bal) bal -= a, txns.emplace_back("Withdraw", a, bal); }
+    void transfer(Account &to, double a) {
+        if (a > 0 && a <= bal) bal -= a, to.bal += a,
+        txns.emplace_back("To " + to_string(to.getNo()), a, bal),
+        to.txns.emplace_back("From " + to_string(accNo), a, to.bal);
+    }
+    void show() const {
+        cout << "\nAcc " << accNo << " | " << name << " | Bal ₹" << bal << "\nRecent:\n";
+        for (int i = txns.size() - 1, c = 0; i >= 0 && c < 5; --i, ++c) txns[i].show();
+    }
+};
+int Account::counter = 1001;
+
+int main() {
+    vector<Account> accs;
+    while (1) {
+        int ch, a1, a2; double amt;
+        cout << "\n1.Create 2.Deposit 3.Withdraw 4.Transfer 5.Show 6.Exit\nChoose: "; cin >> ch;
+        if (ch == 1) { string n; cout << "Name: "; cin.ignore(); getline(cin, n); accs.emplace_back(n); cout << "Acc " << accs.back().getNo() << " created\n"; }
+        else if (ch == 2 || ch == 3) {
+            cout << "Acc No: "; cin >> a1; cout << "Amount: "; cin >> amt;
+            for (auto &a : accs) if (a.getNo() == a1) (ch == 2 ? a.deposit(amt) : a.withdraw(amt));
+        }
+        else if (ch == 4) {
+            cout << "From Acc: "; cin >> a1; cout << "To Acc: "; cin >> a2; cout << "Amount: "; cin >> amt;
+            Account *f = 0, *t = 0;
+            for (auto &a : accs) if (a.getNo() == a1) f = &a; else if (a.getNo() == a2) t = &a;
+            if (f && t) f->transfer(*t, amt);
+        }
+        else if (ch == 5) {
+            cout << "Acc No: "; cin >> a1;
+            for (auto &a : accs) if (a.getNo() == a1) a.show();
+        }
+        else break;
+    }
+}
